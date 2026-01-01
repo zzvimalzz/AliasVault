@@ -40,7 +40,7 @@ function InitializationCheck() {
 
 export default function App() {
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter basename="/AliasVault" future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/setup" element={<Setup />} />
         <Route path="/login" element={<Login />} />
