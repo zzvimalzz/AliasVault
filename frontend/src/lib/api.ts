@@ -3,8 +3,6 @@ function getWorkerUrl(): string {
     return 'http://localhost:8787';
   }
   
-  const pathParts = window.location.pathname.split('/').filter(Boolean);
-  const repoName = pathParts[0] || 'AliasVault';
   const username = window.location.hostname.split('.')[0];
   
   return `https://aliasvault-api-${username}.workers.dev`;
@@ -24,19 +22,18 @@ export function clearToken(): void {
   sessionStorage.clear();
 }
 
-export function setToken(token: string): void {
-  sessionStorage.setItem('token', token);
-}
-
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const token = getToken();
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
   if (token && endpoint !== '/auth') {
     headers['Authorization'] = `Bearer ${token}`;

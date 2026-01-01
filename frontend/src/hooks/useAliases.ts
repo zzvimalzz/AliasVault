@@ -12,7 +12,7 @@ export function useAliases() {
       setLoading(true);
       setError(null);
       const data = await api.getAliases();
-      setAliases(data);
+      setAliases(data as Alias[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch aliases');
     } finally {

@@ -6,8 +6,6 @@ import { Alias } from '../types';
 
 export default function Dashboard() {
   const { aliases, loading, error, refresh } = useAliases();
-  const [selectedAlias, setSelectedAlias] = useState<Alias | null>(null);
-  const [viewMode, setViewMode] = useState<'table' | 'graph'>('table');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [recipients, setRecipients] = useState<any[]>([]);
   const [domains, setDomains] = useState<any[]>([]);
@@ -55,7 +53,7 @@ export default function Dashboard() {
   const handleCreateAlias = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const result = await api.createAlias(createForm);
+      const result = await api.createAlias(createForm) as Alias;
       
       if (createForm.url && result.id) {
         const metadata = getAliasMetadata(result.id);

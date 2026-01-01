@@ -26,14 +26,21 @@ jobs:
       - name: Create KV Namespace
         run: |
           cd backend
-          npx wrangler kv:namespace create SETTINGS --env production || true
-          KV_ID=$(npx wrangler kv:namespace list | grep SETTINGS | grep -oP '(?<="id": ")[^"]*' | head -1)
+          KV_ID=$(npx wrangler kv:namespace list 2>/dev/null | grep -A5 '"title".*SETTINGS' | grep -oP '(?<="id": ")[^"]*' | head -1)
           if [ -z "$KV_ID" ]; then
-            KV_ID=$(npx wrangler kv:namespace create SETTINGS | grep -oP '(?<=id = ")[^"]*')
+            echo "Creating new KV namespace..."
+            OUTPUT=$(npx wrangler kv:namespace create SETTINGS 2>&1)
+            KV_ID=$(echo "$OUTPUT" | grep -oP '(?<=id = ")[^"]*')
           fi
-          echo "[[kv_namespaces]]" >> wrangler.toml
-          echo "binding = \"SETTINGS\"" >> wrangler.toml
-          echo "id = \"$KV_ID\"" >> wrangler.toml
+          if [ -n "$KV_ID" ]; then
+            echo "Using KV namespace ID: $KV_ID"
+            echo "[[kv_namespaces]]" >> wrangler.toml
+            echo "binding = \"SETTINGS\"" >> wrangler.toml
+            echo "id = \"$KV_ID\"" >> wrangler.toml
+          else
+            echo "Failed to get KV namespace ID"
+            exit 1
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       
