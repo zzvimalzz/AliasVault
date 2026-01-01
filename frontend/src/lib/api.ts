@@ -5,7 +5,7 @@ function getWorkerUrl(): string {
   
   const username = window.location.hostname.split('.')[0];
   
-  return `https://aliasvault-api-${username}.workers.dev`;
+  return `https://aliasvault-api.${username}.workers.dev`;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || getWorkerUrl();
