@@ -235,7 +235,7 @@ export default function Dashboard() {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="card p-6 max-w-lg w-full">
+          <div className="card p-8 max-w-2xl w-full">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Create New Alias</h2>
               <button
@@ -246,29 +246,28 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateAlias} className="space-y-4">
+            <form onSubmit={handleCreateAlias} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-base font-medium text-gray-300 mb-2">
                   Local Part (before @)
                 </label>
                 <input
                   type="text"
                   value={createForm.local_part}
                   onChange={(e) => setCreateForm({ ...createForm, local_part: e.target.value })}
-                  className="w-full px-3 py-2 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
                   placeholder="my-alias"
-                  required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-base font-medium text-gray-300 mb-2">
                   Domain
                 </label>
                 <select
                   value={createForm.domain}
                   onChange={(e) => setCreateForm({ ...createForm, domain: e.target.value })}
-                  className="w-full px-3 py-2 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
                   required
                 >
                   <option value="">Select a domain...</option>
@@ -278,46 +277,46 @@ export default function Dashboard() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   {domains.length === 1 ? '1 domain available' : `${domains.length} domains available`}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-base font-medium text-gray-300 mb-2">
                   Description (optional)
                 </label>
                 <textarea
                   value={createForm.description}
                   onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
                   placeholder="What is this alias for?"
                   rows={3}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-base font-medium text-gray-300 mb-2">
                   URL (optional)
                 </label>
                 <input
                   type="url"
                   value={createForm.url}
                   onChange={(e) => setCreateForm({ ...createForm, url: e.target.value })}
-                  className="w-full px-3 py-2 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
                   placeholder="https://example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-base font-medium text-gray-300 mb-2">
                   Recipients
                 </label>
-                <div className="bg-dark-elevated border border-dark-border rounded-lg p-3 max-h-[150px] overflow-y-auto">
+                <div className="bg-dark-elevated border border-dark-border rounded-lg p-4 max-h-[180px] overflow-y-auto">
                   {recipients.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-2">No recipients available</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {recipients.map((recipient) => (
                         <label
                           key={recipient.id}
@@ -352,22 +351,22 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   {createForm.recipient_ids.length === 0 
                     ? 'Select at least one recipient' 
                     : `${createForm.recipient_ids.length} selected`}
                 </p>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-4 pt-6">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 bg-dark-elevated border border-dark-border rounded-lg hover:bg-dark-hover transition-colors"
+                  className="flex-1 px-6 py-3 bg-dark-elevated border border-dark-border rounded-lg hover:bg-dark-hover transition-colors text-base font-medium"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 btn btn-primary">
+                <button type="submit" className="flex-1 px-6 py-3 btn btn-primary text-base font-medium">
                   Create Alias
                 </button>
               </div>

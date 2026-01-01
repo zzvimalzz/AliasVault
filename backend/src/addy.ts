@@ -65,7 +65,7 @@ export async function createAlias(request: Request, env: Env): Promise<Response>
     const body = await request.json() as CreateAliasRequest;
     
     const addyPayload: any = {};
-    if (body.local_part) addyPayload.local_part = body.local_part;
+    if (body.local_part && body.local_part.trim() !== '') addyPayload.local_part = body.local_part;
     if (body.domain) addyPayload.domain = body.domain;
     if (body.description) addyPayload.description = body.description;
     if (body.recipient_ids && body.recipient_ids.length > 0) {
