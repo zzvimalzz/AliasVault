@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-dark-border;
+  }
+  
+  body {
+    @apply bg-dark-bg text-gray-100 font-sans antialiased;
+  }
+  
+  html, body, #root {
+    @apply h-full m-0 p-0;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-accent-primary text-white hover:bg-blue-600 active:bg-blue-700;
+  }
+  
+  .btn-secondary {
+    @apply bg-dark-elevated text-gray-300 hover:bg-dark-hover border border-dark-border;
+  }
+  
+  .btn-danger {
+    @apply bg-accent-danger text-white hover:bg-red-600 active:bg-red-700;
+  }
+  
+  .card {
+    @apply bg-dark-surface rounded-xl border border-dark-border;
+  }
+  
+  .input {
+    @apply bg-dark-elevated border border-dark-border rounded-lg px-4 py-2.5 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-transparent transition-all;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-300 mb-2;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}

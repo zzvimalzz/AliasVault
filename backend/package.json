@@ -1,0 +1,16 @@
+{
+  "name": "aliasvault-api",
+  "version": "1.0.0",
+  "description": "Private API for AliasVault - Addy.io email alias management",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "wrangler": "^3.22.1"
+  }
+}

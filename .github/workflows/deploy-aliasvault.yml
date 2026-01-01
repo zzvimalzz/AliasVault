@@ -1,0 +1,78 @@
+name: Deploy AliasVault
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    name: Deploy Cloudflare Worker
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: |
+          cd AliasVault/backend
+          npm install
+      
+      - name: Create KV Namespace
+        run: |
+          cd AliasVault/backend
+          npx wrangler kv:namespace create SETTINGS --env production || true
+          KV_ID=$(npx wrangler kv:namespace list | grep SETTINGS | grep -oP '(?<="id": ")[^"]*' | head -1)
+          if [ -z "$KV_ID" ]; then
+            KV_ID=$(npx wrangler kv:namespace create SETTINGS | grep -oP '(?<=id = ")[^"]*')
+          fi
+          echo "[[kv_namespaces]]" >> wrangler.toml
+          echo "binding = \"SETTINGS\"" >> wrangler.toml
+          echo "id = \"$KV_ID\"" >> wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      
+      - name: Update CORS Origin
+        run: |
+          cd AliasVault/backend
+          GITHUB_USER=$(echo ${{ github.repository }} | cut -d'/' -f1)
+          REPO_NAME=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          sed -i "s|ALLOWED_ORIGIN = \"https://github.io\"|ALLOWED_ORIGIN = \"https://${GITHUB_USER}.github.io\"|g" wrangler.toml
+          
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: 'AliasVault/backend'
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    name: Deploy Frontend to GitHub Pages
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: |
+          cd AliasVault/frontend
+          npm install
+          
+      - name: Build
+        run: |
+          cd AliasVault/frontend
+          npm run build
+          
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./AliasVault/frontend/dist
