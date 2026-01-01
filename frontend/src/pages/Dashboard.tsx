@@ -272,7 +272,7 @@ export default function Dashboard() {
                             <img 
                               src={serviceIcon} 
                               alt="Service icon" 
-                              className="w-8 h-8 rounded"
+                              className="w-8 h-8 rounded bg-white p-1"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
