@@ -11,15 +11,15 @@ function getWorkerUrl(): string {
 const API_URL = import.meta.env.VITE_API_URL || getWorkerUrl();
 
 export function getToken(): string | null {
-  return sessionStorage.getItem('token');
+  return localStorage.getItem('token');
 }
 
 export function setToken(token: string): void {
-  sessionStorage.setItem('token', token);
+  localStorage.setItem('token', token);
 }
 
 export function clearToken(): void {
-  sessionStorage.clear();
+  localStorage.removeItem('token');
 }
 
 async function request<T>(
