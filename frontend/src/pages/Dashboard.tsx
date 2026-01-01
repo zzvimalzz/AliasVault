@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [recipients, setRecipients] = useState<any[]>([]);
   const [domains, setDomains] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [createForm, setCreateForm] = useState({
     local_part: '',
     domain: '',
@@ -107,30 +108,43 @@ export default function Dashboard() {
       <nav className="bg-dark-surface border-b border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold">AliasVault</h1>
-              <span className="ml-4 text-sm text-gray-500">
-                {aliases.length} {aliases.length === 1 ? 'alias' : 'aliases'}
-              </span>
-            </div>
+            <h1 className="text-2xl font-bold">AliasVault</h1>
 
-            <div className="flex items-center gap-4">
-              <a
-                href="/settings"
-                className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                Settings
-              </a>
-
-              <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-                + Create Alias
-              </button>
-            </div>
+            <a
+              href="/settings"
+              className="text-gray-400 hover:text-gray-200 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </a>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-4 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search aliases..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-dark-elevated border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent-primary"
+              />
+            </div>
+          </div>
+
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            + Create Alias
+          </button>
+        </div>
+
         {aliases.length === 0 ? (
           <div className="card p-12 text-center">
             <p className="text-gray-500">No aliases yet</p>
@@ -139,17 +153,23 @@ export default function Dashboard() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {aliases.map((alias) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {aliases
+              .filter(alias => 
+                searchQuery === '' ||
+                alias.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                alias.description?.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((alias) => {
               const metadata = getAliasMetadata(alias.id);
               return (
                     <div
                       key={alias.id}
-                      className="card p-4 hover:border-accent-primary/30 transition-all hover:shadow-lg hover:shadow-accent-primary/5"
+                      className="card p-6 hover:border-accent-primary/30 transition-all hover:shadow-lg hover:shadow-accent-primary/5"
                     >
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start justify-between mb-4">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                             alias.active
                               ? 'bg-accent-success/10 text-accent-success'
                               : 'bg-gray-800 text-gray-400'
@@ -159,18 +179,18 @@ export default function Dashboard() {
                         </span>
                       </div>
 
-                      <div className="mb-3">
-                        <div className="font-mono text-sm text-gray-200 break-all mb-1">
+                      <div className="mb-4">
+                        <div className="font-mono text-base text-gray-200 break-all mb-2">
                           {alias.email}
                         </div>
                         {alias.description && (
-                          <div className="text-xs text-gray-500 mt-1 line-clamp-2">
+                          <div className="text-sm text-gray-500 mt-2 line-clamp-2">
                             {alias.description}
                           </div>
                         )}
                       </div>
 
-                      <div className="space-y-1.5 mb-3 text-xs">
+                      <div className="space-y-2 mb-4 text-sm">
                         {metadata.service && (
                           <div className="flex items-center justify-between">
                             <span className="text-gray-500">Service:</span>
@@ -191,16 +211,16 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 pt-3 border-t border-dark-border">
+                      <div className="flex gap-3 pt-4 border-t border-dark-border">
                         <button
                           onClick={() => handleToggleStatus(alias)}
-                          className="flex-1 text-xs py-1.5 px-2 rounded bg-dark-elevated hover:bg-accent-primary/10 text-accent-primary transition-colors"
+                          className="flex-1 text-sm py-2 px-3 rounded bg-dark-elevated hover:bg-accent-primary/10 text-accent-primary transition-colors font-medium"
                         >
                           {alias.active ? 'Disable' : 'Enable'}
                         </button>
                         <button
                           onClick={() => handleDelete(alias)}
-                          className="flex-1 text-xs py-1.5 px-2 rounded bg-dark-elevated hover:bg-accent-danger/10 text-accent-danger transition-colors"
+                          className="flex-1 text-sm py-2 px-3 rounded bg-dark-elevated hover:bg-accent-danger/10 text-accent-danger transition-colors font-medium"
                         >
                           Delete
                         </button>
