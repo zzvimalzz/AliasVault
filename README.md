@@ -209,8 +209,6 @@ npm install
 npm run dev
 ```
 
-See [SETUP.md](SETUP.md) for local development setup.
-
 ## 📝 License
 
 MIT - Use freely!
