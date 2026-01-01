@@ -20,8 +20,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (showCreateModal) {
       Promise.all([
-        api.getRecipients().then(setRecipients),
-        api.getDomains().then(setDomains),
+        api.getRecipients().then(r => setRecipients(r as any[])),
+        api.getDomains().then(d => setDomains(d as any[])),
       ]).catch(console.error);
     }
   }, [showCreateModal]);
@@ -122,29 +122,6 @@ export default function Dashboard() {
                 Settings
               </a>
 
-              <div className="flex bg-dark-elevated rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('table')}
-                  className={`px-3 py-1.5 rounded text-sm transition-colors ${
-                    viewMode === 'table'
-                      ? 'bg-accent-primary text-white'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  Table
-                </button>
-                <button
-                  onClick={() => setViewMode('graph')}
-                  className={`px-3 py-1.5 rounded text-sm transition-colors ${
-                    viewMode === 'graph'
-                      ? 'bg-accent-primary text-white'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  Graph
-                </button>
-              </div>
-
               <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
                 + Create Alias
               </button>
@@ -154,20 +131,18 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {viewMode === 'table' ? (
-          <>
-            {aliases.length === 0 ? (
-              <div className="card p-12 text-center">
-                <p className="text-gray-500">No aliases yet</p>
-                <p className="text-sm text-gray-600 mt-2">
-                  Create your first alias to get started
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {aliases.map((alias) => {
-                  const metadata = getAliasMetadata(alias.id);
-                  return (
+        {aliases.length === 0 ? (
+          <div className="card p-12 text-center">
+            <p className="text-gray-500">No aliases yet</p>
+            <p className="text-sm text-gray-600 mt-2">
+              Create your first alias to get started
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {aliases.map((alias) => {
+              const metadata = getAliasMetadata(alias.id);
+              return (
                     <div
                       key={alias.id}
                       className="card p-4 hover:border-accent-primary/30 transition-all hover:shadow-lg hover:shadow-accent-primary/5"
@@ -235,17 +210,7 @@ export default function Dashboard() {
                 })}
               </div>
             )}
-          </>
-        ) : (
-          <div className="card p-6">
-            <div className="text-center py-12">
-              <p className="text-gray-500">Graph view coming soon</p>
-              <p className="text-sm text-gray-600 mt-2">
-                Visualize your alias network with Cytoscape.js
-              </p>
-            </div>
-          </div>
-        )}
+
       </main>
 
       {showCreateModal && (
