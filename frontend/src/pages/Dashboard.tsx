@@ -7,6 +7,8 @@ import { Alias } from '../types';
 export default function Dashboard() {
   const { aliases, loading, error, refresh } = useAliases();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAlias, setEditingAlias] = useState<Alias | null>(null);
   const [recipients, setRecipients] = useState<any[]>([]);
   const [domains, setDomains] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +19,12 @@ export default function Dashboard() {
     recipient_ids: [] as string[],
     url: '',
   });
+  const [editForm, setEditForm] = useState({
+    description: '',
+    url: '',
+    tags: [] as string[],
+  });
+  const [newTag, setNewTag] = useState('');
 
   useEffect(() => {
     if (showCreateModal) {
@@ -48,6 +56,96 @@ export default function Dashboard() {
       refresh();
     } catch (err) {
       console.error('Failed to delete alias:', err);
+    }
+  };
+
+  const handleEditAlias = (alias: Alias) => {
+    const metadata = getAliasMetadata(alias.id);
+    setEditingAlias(alias);
+    setEditForm({
+      description: alias.description || '',
+      url: metadata.url || '',
+      tags: metadata.tags || [],
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateAlias = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAlias) return;
+
+    try {
+      // Update alias description via API
+      await api.updateAlias(editingAlias.id, {
+        description: editForm.description,
+      });
+
+      // Update metadata in localStorage
+      const metadata = getAliasMetadata(editingAlias.id);
+      setAliasMetadata(editingAlias.id, {
+        ...metadata,
+        url: editForm.url,
+        tags: editForm.tags,
+      });
+
+      setShowEditModal(false);
+      setEditingAlias(null);
+      refresh();
+    } catch (err) {
+      console.error('Failed to update alias:', err);
+      alert('Failed to update alias: ' + (err as Error).message);
+    }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !editForm.tags.includes(newTag.trim())) {
+      setEditForm({
+        ...editForm,
+        tags: [...editForm.tags, newTag.trim()],
+      });
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    setEditForm({
+      ...editForm,
+      tags: editForm.tags.filter(t => t !== tag),
+    });
+  };
+
+  const getServiceIcon = (url: string) => {
+    if (!url) return null;
+    
+    const domain = url.toLowerCase();
+    
+    // Map of common services to their logos
+    if (domain.includes('instagram.com')) return 'https://cdn.simpleicons.org/instagram';
+    if (domain.includes('facebook.com')) return 'https://cdn.simpleicons.org/facebook';
+    if (domain.includes('twitter.com') || domain.includes('x.com')) return 'https://cdn.simpleicons.org/x';
+    if (domain.includes('linkedin.com')) return 'https://cdn.simpleicons.org/linkedin';
+    if (domain.includes('github.com')) return 'https://cdn.simpleicons.org/github';
+    if (domain.includes('reddit.com')) return 'https://cdn.simpleicons.org/reddit';
+    if (domain.includes('youtube.com')) return 'https://cdn.simpleicons.org/youtube';
+    if (domain.includes('discord.com') || domain.includes('discord.gg')) return 'https://cdn.simpleicons.org/discord';
+    if (domain.includes('slack.com')) return 'https://cdn.simpleicons.org/slack';
+    if (domain.includes('amazon.com')) return 'https://cdn.simpleicons.org/amazon';
+    if (domain.includes('netflix.com')) return 'https://cdn.simpleicons.org/netflix';
+    if (domain.includes('spotify.com')) return 'https://cdn.simpleicons.org/spotify';
+    if (domain.includes('twitch.tv')) return 'https://cdn.simpleicons.org/twitch';
+    if (domain.includes('tiktok.com')) return 'https://cdn.simpleicons.org/tiktok';
+    if (domain.includes('pinterest.com')) return 'https://cdn.simpleicons.org/pinterest';
+    if (domain.includes('paypal.com')) return 'https://cdn.simpleicons.org/paypal';
+    if (domain.includes('google.com')) return 'https://cdn.simpleicons.org/google';
+    if (domain.includes('microsoft.com')) return 'https://cdn.simpleicons.org/microsoft';
+    if (domain.includes('apple.com')) return 'https://cdn.simpleicons.org/apple';
+    
+    // Generic fallback - use Google's favicon service
+    try {
+      const urlObj = new URL(url);
+      return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+    } catch {
+      return null;
     }
   };
 
@@ -162,21 +260,34 @@ export default function Dashboard() {
               )
               .map((alias) => {
               const metadata = getAliasMetadata(alias.id);
+              const serviceIcon = getServiceIcon(metadata.url || '');
               return (
                     <div
                       key={alias.id}
                       className="card p-6 hover:border-accent-primary/30 transition-all hover:shadow-lg hover:shadow-accent-primary/5"
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                            alias.active
-                              ? 'bg-accent-success/10 text-accent-success'
-                              : 'bg-gray-800 text-gray-400'
-                          }`}
-                        >
-                          {alias.active ? 'Active' : 'Inactive'}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          {serviceIcon && (
+                            <img 
+                              src={serviceIcon} 
+                              alt="Service icon" 
+                              className="w-8 h-8 rounded"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                              alias.active
+                                ? 'bg-accent-success/10 text-accent-success'
+                                : 'bg-gray-800 text-gray-400'
+                            }`}
+                          >
+                            {alias.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="mb-4">
@@ -189,6 +300,19 @@ export default function Dashboard() {
                           </div>
                         )}
                       </div>
+
+                      {metadata.tags && metadata.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {metadata.tags.map((tag, idx) => (
+                            <span 
+                              key={idx}
+                              className="inline-flex items-center px-2 py-1 rounded text-xs bg-accent-primary/10 text-accent-primary border border-accent-primary/20"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       <div className="space-y-2 mb-4 text-sm">
                         {metadata.service && (
@@ -212,6 +336,12 @@ export default function Dashboard() {
                       </div>
 
                       <div className="flex gap-3 pt-4 border-t border-dark-border">
+                        <button
+                          onClick={() => handleEditAlias(alias)}
+                          className="flex-1 text-sm py-2 px-3 rounded bg-dark-elevated hover:bg-accent-primary/10 text-accent-primary transition-colors font-medium"
+                        >
+                          Edit
+                        </button>
                         <button
                           onClick={() => handleToggleStatus(alias)}
                           className="flex-1 text-sm py-2 px-3 rounded bg-dark-elevated hover:bg-accent-primary/10 text-accent-primary transition-colors font-medium"
@@ -368,6 +498,131 @@ export default function Dashboard() {
                 </button>
                 <button type="submit" className="flex-1 px-6 py-3 btn btn-primary text-base font-medium">
                   Create Alias
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && editingAlias && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="card p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Edit Alias</h2>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingAlias(null);
+                }}
+                className="text-gray-400 hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateAlias} className="space-y-5">
+              <div>
+                <label className="block text-base font-medium text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="text"
+                  value={editingAlias.email}
+                  disabled
+                  className="w-full px-4 py-3 bg-dark-surface border border-dark-border rounded-lg text-gray-500 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500 mt-1">Email address cannot be changed</p>
+              </div>
+
+              <div>
+                <label className="block text-base font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  placeholder="What is this alias for?"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-base font-medium text-gray-300 mb-2">
+                  URL
+                </label>
+                <input
+                  type="url"
+                  value={editForm.url}
+                  onChange={(e) => setEditForm({ ...editForm, url: e.target.value })}
+                  className="w-full px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                  placeholder="https://example.com"
+                />
+                <p className="text-xs text-gray-500 mt-1">Used to display service icon</p>
+              </div>
+
+              <div>
+                <label className="block text-base font-medium text-gray-300 mb-2">
+                  Tags
+                </label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                    className="flex-1 px-4 py-3 bg-dark-elevated border border-dark-border rounded-lg text-white focus:outline-none focus:border-accent-primary"
+                    placeholder="Add a tag..."
+                  />
+                  <button
+                    type="button"
+                    onClick={addTag}
+                    className="px-6 py-3 bg-accent-primary/10 border border-accent-primary/20 text-accent-primary rounded-lg hover:bg-accent-primary/20 transition-colors font-medium"
+                  >
+                    Add
+                  </button>
+                </div>
+                
+                {editForm.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-4 bg-dark-elevated border border-dark-border rounded-lg">
+                    {editForm.tags.map((tag, idx) => (
+                      <span 
+                        key={idx}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-accent-primary/10 text-accent-primary border border-accent-primary/20"
+                      >
+                        <span className="text-sm">{tag}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="text-accent-primary hover:text-accent-primary/70 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-4 pt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingAlias(null);
+                  }}
+                  className="flex-1 px-6 py-3 bg-dark-elevated border border-dark-border rounded-lg hover:bg-dark-hover transition-colors text-base font-medium"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 px-6 py-3 btn btn-primary text-base font-medium">
+                  Save Changes
                 </button>
               </div>
             </form>
