@@ -143,19 +143,6 @@ MIT - Use freely!
 - ⚙️ **Easy Settings** - Update credentials anytime
 - 🚀 **Zero Config Deploy** - GitHub Actions handles everything
 
-## 🚀 Quick Start
-
-**See [SETUP.md](SETUP.md) for detailed instructions**
-
-1. Fork this repo
-2. Create Cloudflare KV namespace
-3. Add `CLOUDFLARE_API_TOKEN` to GitHub Secrets
-4. Update `wrangler.toml` and `api.ts` with your info
-5. Push to deploy
-6. Visit GitHub Pages URL and complete setup wizard
-
-That's it! 🎉
-
 ## 📸 Screenshots
 
 ### Setup Wizard
